@@ -1,21 +1,21 @@
 class Summoner
 {
-    constructor(name, tier, division, lp, promoGames)
+    constructor(name, tier, rank, leaguePoints, miniSeries)
     {
         this.summoner_name = name;
         this.tier = tier;
-        this.division = division;
-        this.lp = lp;
-        this.promoGames = promoGames; 
+        this.rank = rank;
+        this.leaguePoints = leaguePoints;
+        this.miniSeries = miniSeries; 
     }
 
     displayRank()
     {
         $("#rankText").html(this.tier);
-        $("#lpText").html(this.lp + " LP");
+        $("#lpText").html(this.leaguePoints + " LP");
 
         var promoSeries = document.getElementById("promoSeries");
-        if (this.lp == 100)
+        if (this.leaguePoints == 100)
         {
             promoSeries.style.display = "flex";
             if (this.division == 1)
@@ -42,8 +42,40 @@ class Summoner
 
 function getRank()
 {
-    //call api for streamer stats
-    var summoner = new Summoner("Spokane", "Gold", 1, 99, [1,1,2,0,0]);
+    var summoner_name = "Lovelightz";
+    var encrypted_summoner_id;
+
+    let endpoint1 = 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summoner_name;
+    let endpoint2 = 'https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + encrypted_summoner_id;
+    let apiKey = 'RGAPI-04a49ddf-30bc-4b25-a0e3-3a9fb9eec5c6';
+    
+    var tier;
+    var rank;
+    var leaguePoints;
+    var miniSeries;
+
+    $.ajax({
+        url: endpoint1 + "?api_key=" + apiKey,
+        contentType: "application/json",
+        dataType: 'json',
+        success: function(result){
+            encrypted_summoner_id = result.id;
+        }
+    });
+
+    $.ajax({
+        url: endpoint2 + "?api_key=" + apiKey,
+        contentType: "application/json",
+        dataType: 'json',
+        success: function(result){
+            tier = result.tier;
+            rank = result.rank;
+            leaguePoints = result.leaguePoints;
+            miniSeries = result.miniSeries;
+        }
+    });
+    
+    var summoner = new Summoner(summoner_name, tier, rank, leaguePoints, miniSeries);
     summoner.displayRank();
 }
 
