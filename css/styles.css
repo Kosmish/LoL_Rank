@@ -1,0 +1,26 @@
+html
+{
+    font-family: 'Minecraftia', 'Arial';
+    color: #ffffff;
+}
+
+body
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#lpText
+{
+    font-size: 10pt;
+}
+
+#promoSeries
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
