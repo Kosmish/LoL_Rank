@@ -46,7 +46,6 @@ function getRank()
     var encrypted_summoner_id;
 
     let endpoint1 = 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summoner_name;
-    let endpoint2 = 'https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + encrypted_summoner_id;
     let apiKey = 'RGAPI-04a49ddf-30bc-4b25-a0e3-3a9fb9eec5c6';
     
     var tier;
@@ -63,6 +62,8 @@ function getRank()
         }
     });
 
+    let endpoint2 = 'https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + encrypted_summoner_id;
+
     $.ajax({
         url: endpoint2 + "?api_key=" + apiKey,
         contentType: "application/json",
@@ -75,7 +76,8 @@ function getRank()
         }
     });
     
-    var summoner = new Summoner(summoner_name, tier, rank, leaguePoints, miniSeries);
+    //var summoner = new Summoner(summoner_name, tier, rank, leaguePoints, miniSeries);
+    var summoner = new Summoner(summoner_name, "Diamond", 1, 100, miniSeries);
     summoner.displayRank();
 }
 
