@@ -1,0 +1,26 @@
+{
+  "name": "lol_rank",
+  "version": "1.0.0",
+  "description": "League of Legends Streamer Plugin App",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index",
+    "dev": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ebarrio19/LoL_Rank.git"
+  },
+  "author": "Eric Barrio",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ebarrio19/LoL_Rank/issues"
+  },
+  "homepage": "https://github.com/ebarrio19/LoL_Rank#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "request": "^2.88.2"
+  }
+}
