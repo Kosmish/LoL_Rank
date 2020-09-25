@@ -15,9 +15,43 @@
                     Summoner Name: <input type="text" id="username">
                     <button id="search_btn">Search</button>
                 </div>
-
-                <div class="widgets_main">
-                    <div class="widget">
+                <div id="load_area" style="display:none">
+                    <img src="./img/load.gif" alt="">
+                </div>
+                <div class="widgets_main" id="queue_selection" style="display:none">
+                    <div class="queueBtn" id="queue0" style="display:none">Solo/Duo</div>
+                    <div class="queueBtn" id="queue1" style="display:none">Flex Queue</div>
+                </div>
+                <div class="profile_container" style="display:none" id="profile_display">
+                    <div class="profile" >
+                        <div id="profile_rank">
+                        </div>
+                        <div class="profile_info" id="profile_info">
+                            <div class="profile_detail" id="profile_name"></div>
+                            <div id="profile_tier"></div>
+                            <div id="profile_lp"></div>
+                            <div id="profile_series"></div>
+                            <div id="profile_winrate"></div>
+                        </div>
+                    </div>
+                    <div class="profile" style="justify-content: flex-start;">
+                        <div class="profile_detail">
+                            Settings
+                        </div>
+                        <div class="profile_info">
+                            <div>
+                                <input type="checkbox" name="show_winloss" id="show_winloss">
+                                <label for="show_winloss">Show Win/Loss</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" name="show_winloss" id="show_winloss">
+                                <label for="show_winloss">Show LP</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="widgets_main" id="widgets_main" style="display:none">
+                    <div class="widget" id="widget0">
                         <div class="widget_detail"></div>
                         <div class="profile_icon">
                             <img src="./img/mastery_full.png" alt="" class="summoner_icon_ribbon">
@@ -27,7 +61,7 @@
                         </div>
                     </div>
 
-                    <div class="widget">
+                    <div class="widget" id="widget1">
                         <div class="widget_detail"></div>
                         <div>
                             <img src="./img/grandmaster.png" alt="">
@@ -37,7 +71,7 @@
                         </div>
                     </div>
 
-                    <div class="widget">
+                    <div class="widget" id="widget2">
                         <div class="widget_detail"></div>
                         <div>
                             <img src="./img/match_history.png" alt="">
@@ -47,7 +81,7 @@
                         </div>
                     </div>
 
-                    <div class="widget">
+                    <div class="widget" id="widget3">
                         <div class="widget_detail"></div>
                         <div>
                             <img src="./img/summoners_rift.png" alt="">
@@ -58,7 +92,10 @@
                     </div>
 
                 </div>
-
+                <div class="widgets_main" style="display:none" id="confirm_btns">
+                    <a id="continue" href=""><div class="goBtn" id="go_btn">Continue</div></a>
+                    <div class="cancelBtn" id="cancelBtn">Cancel</div>
+                </div>
                 <div style="flex-grow: 1;" id="result"></div>
 
             </div>
@@ -66,3 +103,4 @@
             <div class="bot">Created by Lovelights</div>
       </body>
 </html>
+<script src="js/client.js"></script>
