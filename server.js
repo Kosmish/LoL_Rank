@@ -3,7 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const url = require('url');
 const request = require('request');
-const { query } = require('express');
 
 var summoner_name = "";
 var encrypted_summoner_id = "";
@@ -59,13 +58,16 @@ const requestListener = function (req, res) {
                     }
                     if (res2.statusCode == 200)
                     {
+                        console.log("[Server] Username Check: " + body['name']);
                         encrypted_summoner_id = body['id'];
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify(body));
                     }
                     else
                     {
-                        return console.log("getID Failure: " + res2.statusCode);
+                        res.writeHead(404, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({'id':''}));
+                        return console.log("[Error] getName Failure: " + res2.statusCode);
                     }
                 });
             }
@@ -79,20 +81,25 @@ const requestListener = function (req, res) {
                     }
                     if (res2.statusCode == 200)
                     {
+                        if (body.length > 0)
+                            console.log("[Server] User Stats Request: " + body[0]['summonerName']);
+                        else
+                            console.log("[Server] User Stats Request: User has no ranked stats");
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify(body));
                     }
                     else
                     {
-                        return console.log("getID Failure: " + res2.statusCode);
+                        return console.log("[Error] getID Failure: " + res2.statusCode);
                     }
                 });
             }
-            else if (queryParams.username)
+            
+            else if (queryParams.username && req.headers['query'] == 'true')
             {
-                res.writeHead(200, { 'Content-Type': 'text/json'});
-                console.log(JSON.stringify(queryParams));
-                res.end(JSON.stringify(queryParams), 'utf8');
+                res.writeHead(200, { 'Content-Type': 'application/json'});
+                console.log("[Server] Rank Widget: " + queryParams.username + " - " + queryParams.queue);
+                res.end(JSON.stringify(queryParams));
             }
             else
             {
@@ -101,6 +108,7 @@ const requestListener = function (req, res) {
             }
         }
     });
+    
 }
 const server = http.createServer(requestListener);
 server.listen(5000);

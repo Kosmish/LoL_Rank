@@ -4,10 +4,11 @@
         <meta content="utf-8" http-equiv="encoding">
         <link rel="stylesheet" href="./css/styles.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <title>LoL Streamer+</title>
       </head>
 
       <body>
-            <div class="top"><h1>League Streamer Plugin</h1></div>
+            <a href="./index.html"><div class="top"><h1>LoL Streamer+</h1></div></a>
 
             <div class="mid">
 
@@ -15,6 +16,7 @@
                     Summoner Name: <input type="text" id="username">
                     <button id="search_btn">Search</button>
                 </div>
+                <div id="error_msg"></div>
                 <div id="load_area" style="display:none">
                     <img src="./img/load.gif" alt="">
                 </div>
@@ -38,14 +40,22 @@
                         <div class="profile_detail">
                             Settings
                         </div>
-                        <div class="profile_info">
+                        <div>
                             <div>
-                                <input type="checkbox" name="show_winloss" id="show_winloss">
-                                <label for="show_winloss">Show Win/Loss</label>
+                                <input type="checkbox" name="show_username" id="show_username" checked>
+                                <label for="show_username">Show Username</label>
                             </div>
                             <div>
-                                <input type="checkbox" name="show_winloss" id="show_winloss">
+                                <input type="checkbox" name="show_tier" id="show_tier" checked>
+                                <label for="show_tier">Show Tier</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" name="show_winloss" id="show_winloss" checked>
                                 <label for="show_winloss">Show LP</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" name="show_winloss" id="show_winloss" checked>
+                                <label for="show_winloss">Show Win/Loss</label>
                             </div>
                         </div>
                     </div>

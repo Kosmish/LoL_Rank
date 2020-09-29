@@ -23,21 +23,31 @@ function init()
     $("#profile_display").hide();
     $("#confirm_btns").hide();
     $("#search_btn").click(function(){
-        for (var i = 0; i < numOfQueueTypes; i++)
+        if ($("#username").val().length >= 3 && $("#username").val().length <= 16)
         {
-            var str = "queue"+i;
-            document.getElementById(str).className = "queueBtn";
+            for (var i = 0; i < numOfQueueTypes; i++)
+            {
+                var str = "queue"+i;
+                document.getElementById(str).className = "queueBtn";
+            }
+            $("#profile_display").hide();
+            $("#profile").hide();
+            $("#queue0").hide();
+            $("#queue1").hide();
+            $("#widgets_main").hide();
+            $("#queue_selection").hide();
+            $("#load_area").show();
+            $("#confirm_btns").hide();
+            document.getElementById("error_msg").innerHTML = "";
+            selectedUsername = $("#username").val();
+            checkName();
         }
-        $("#profile_display").hide();
-        $("#profile").hide();
-        $("#queue0").hide();
-        $("#queue1").hide();
-        $("#widgets_main").hide();
-        $("#queue_selection").hide();
-        $("#load_area").show();
-        $("#confirm_btns").hide();
-        selectedUsername = $("#username").val();
-        checkName();
+        else
+        {
+            document.getElementById("error_msg").innerHTML = "Error: Invalid Summoner name";
+            turnOff();
+        }
+        
     });
 
     $(".queueBtn").click(function(){
@@ -73,13 +83,14 @@ function checkName()
     })
     .done(function (data) {
         esid = data['id'];
+        selectedUsername = data['name'];
         if (esid != "")
             retrieveStats();
-        else
-            console.log("Error: Summoner does not exist");
+            else
+            console.log("EOROROR");
     })
     .fail(function (xhr, status, error) {
-        console.log('Error: ' + error.message);
+        document.getElementById("error_msg").innerHTML = "Error: Summoner name does not exist";
     })
 }
 
@@ -96,7 +107,8 @@ function retrieveStats()
     .done(function (data) {
         if (data.length == 0)
         {
-            console.log("Summoner has no ranked information");
+            turnOff();
+            document.getElementById("error_msg").innerHTML = "Error: Summoner has no ranked information";
         }
         else
         {
@@ -171,7 +183,7 @@ function selectWidget(clickedButton)
     var queueObj = summoner.getQueueObj();
     document.getElementById("profile_name").innerHTML = summoner.summonerName;
     document.getElementById("profile_tier").innerHTML = queueObj.tier + " " + queueObj.rank;
-    document.getElementById("profile_lp").innerHTML = queueObj.leaguePoints + " LP";
+    document.getElementById("profile_lp").innerHTML = "";
     document.getElementById("profile_series").innerHTML = "";
     if (queueObj.miniSeries)
     {
@@ -187,6 +199,10 @@ function selectWidget(clickedButton)
         }
         document.getElementById("profile_series").innerHTML = ms;
     }
+    else
+    {
+        document.getElementById("profile_lp").innerHTML = queueObj.leaguePoints + " LP";
+    }
     document.getElementById("profile_winrate").innerHTML = queueObj.wins + "W - " + queueObj.losses + "L";
 
     document.getElementById("profile_rank").innerHTML = "";
@@ -194,13 +210,16 @@ function selectWidget(clickedButton)
     switch(queueObj.tier)
     {
         case "CHALLENGER":
-            document.getElementById("profile_rank").innerHTML = "<img src='./img/challenger.png'>";
+            document.getElementById("profile_rank").innerHTML = "<img src='./img/CHALLENGER.png'>";
             break;
         case "GRANDMASTER":
-            document.getElementById("profile_rank").innerHTML = "<img src='./img/grandmaster.png'>";
+            document.getElementById("profile_rank").innerHTML = "<img src='./img/GRANDMASTER.png'>";
             break;
         case "MASTER":
-            document.getElementById("profile_rank").innerHTML = "<img src='./img/masters.png'>";
+            document.getElementById("profile_rank").innerHTML = "<img src='./img/MASTER.png'>";
+            break;
+        case "DIAMOND":
+            document.getElementById("profile_rank").innerHTML = "<img src='./img/DIAMOND.png'>";
             break;
     }
     $("#widgets_main").show();
@@ -219,6 +238,18 @@ function editWidgetSettings(clickedButton)
     $("#confirm_btns").show();
 
     fetchWidget();
+}
+
+function turnOff()
+{
+    $("#profile_display").hide();
+    $("#profile").hide();
+    $("#queue0").hide();
+    $("#queue1").hide();
+    $("#widgets_main").hide();
+    $("#queue_selection").hide();
+    $("#load_area").hide();
+    $("#confirm_btns").hide();
 }
 
 class Summoner {

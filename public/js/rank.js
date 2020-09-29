@@ -6,30 +6,16 @@ const queues = [
     "RANKED_FLEX_SR"
 ];
 
-function handleFileSelect(evt) {
-    var file = evt.target.files[0]; // File inputs are an array - get the first element
-    var reader = new FileReader();
-  
-    reader.onload = function(e) {
-      // Render the supplied file
-      document.getElementById('displayHtml').value = e.target.result
-      document.getElementById('displayPage').innerHTML = e.target.result;
-    };
-  
-    // Read in the HTML file.
-    reader.readAsText(file);
-  };
-  
-  document.getElementById('fileInput').addEventListener('change', handleFileSelect, false);
-
 function getParams()
 {
     $.ajax({
         type: 'POST',
+        headers: {query : true}
     })
     .done(function (data) {
-        console.log("Json call success");
-        console.log(data);
+        selectedUsername = data['username'];
+        selectedQueue = data['queue'];
+        checkName();
     })
     .fail(function (xhr, status, error) {
         console.log('Error: ' + error.message);
@@ -48,7 +34,11 @@ function checkName()
     })
     .done(function (data) {
         if (data['id'] != "")
+        {
+            selectedUsername = data['name'];
+            document.getElementById("page_title").innerHTML = selectedUsername + " | LoL Streamer+";
             retrieveStats(data['id']);
+        }
         else
             console.log("Error: Summoner does not exist");
     })
@@ -74,23 +64,50 @@ function retrieveStats(esid)
         }
         else
         {
-            document.getElementById("profile_tier").innerHTML = data[i]['tier'] + " " + data[i]['rank'];
-            document.getElementById("profile_lp").innerHTML = data[i]['leaguePoints'] + " LP";
-            if (data[i]['miniSeries'])
+            var queueIndex = 0;
+            for (var i = 0; i < data.length; i++)
+            {
+                if (data[i]['queueType'] == selectedQueue)
+                {
+                    queueIndex = i;
+                }
+            }
+            switch(data[queueIndex]['tier'])
+            {
+                case "CHALLENGER":
+                    document.getElementById("profile_rank").innerHTML = "<img src='./img/CHALLENGER.png'>";
+                    break;
+                case "GRANDMASTER":
+                    document.getElementById("profile_rank").innerHTML = "<img src='./img/GRANDMASTER.png'>";
+                    break;
+                case "MASTER":
+                    document.getElementById("profile_rank").innerHTML = "<img src='./img/MASTER.png'>";
+                    break;
+                case "DIAMOND":
+                    document.getElementById("profile_rank").innerHTML = "<img src='./img/DIAMOND.png'>";
+                    break;
+            }
+            document.getElementById("profile_name").innerHTML = selectedUsername;
+            document.getElementById("profile_tier").innerHTML = data[queueIndex]['tier'] + " " + data[queueIndex]['rank'];
+            if (data[queueIndex]['leaguePoints'] != 100)
+            {
+                document.getElementById("profile_lp").innerHTML = data[queueIndex]['leaguePoints'] + " LP";
+            }
+                if (data[queueIndex]['miniSeries'])
             {
                 var ms = "";
-                for (var i = 0; i < queueObj.target * 2 - 1; i++)
+                for (var i = 0; i < data[queueIndex]['miniSeries']['target'] * 2 - 1; i++)
                 {
-                    if (queueObj.progress.charAt(i) === 'L')
+                    if (data[queueIndex]['miniSeries']['progress'].charAt(i) === 'L')
                         ms += "<img src='./img/promos3.png'>";
-                    else if (queueObj.progress.charAt(i) === 'W')
+                    else if (data[queueIndex]['miniSeries']['progress'].charAt(i) === 'W')
                         ms += "<img src='./img/promos2.png'>";
                     else
                         ms += "<img src='./img/promos1.png'>";
                 }
                 document.getElementById("profile_series").innerHTML = ms;
             }
-            document.getElementById("profile_winrate").innerHTML = data[i]['wins'] + "W - " + data[i]['losses'] + "L";
+            document.getElementById("profile_winrate").innerHTML = data[queueIndex]['wins'] + "W - " + data[queueIndex]['losses'] + "L";
         }
     })
     .fail(function (xhr, status, error) {
