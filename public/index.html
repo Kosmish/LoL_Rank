@@ -3,6 +3,7 @@
         <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
         <meta content="utf-8" http-equiv="encoding">
         <link rel="stylesheet" href="./css/styles.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <title>LoL Streamer+</title>
       </head>
@@ -25,9 +26,8 @@
                     <div class="queueBtn" id="queue1" style="display:none">Flex Queue</div>
                 </div>
                 <div class="profile_container" style="display:none" id="profile_display">
-                    <div class="profile" >
-                        <div id="profile_rank">
-                        </div>
+                    <div class="profile">
+                        <div id="profile_rank" class="profile_info"></div>
                         <div class="profile_info" id="profile_info">
                             <div class="profile_detail" id="profile_name"></div>
                             <div id="profile_tier"></div>
@@ -40,23 +40,7 @@
                         <div class="profile_detail">
                             Settings
                         </div>
-                        <div>
-                            <div>
-                                <input type="checkbox" name="show_username" id="show_username" checked>
-                                <label for="show_username">Show Username</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" name="show_tier" id="show_tier" checked>
-                                <label for="show_tier">Show Tier</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" name="show_winloss" id="show_winloss" checked>
-                                <label for="show_winloss">Show LP</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" name="show_winloss" id="show_winloss" checked>
-                                <label for="show_winloss">Show Win/Loss</label>
-                            </div>
+                        <div id="settings" class="settings">
                         </div>
                     </div>
                 </div>
@@ -74,7 +58,7 @@
                     <div class="widget" id="widget1">
                         <div class="widget_detail"></div>
                         <div>
-                            <img src="./img/grandmaster.png" alt="">
+                            <img src="./img/CHALLENGER.png" alt="">
                         </div>
                         <div class="widget_detail">
                             Rank

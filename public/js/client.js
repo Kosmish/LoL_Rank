@@ -1,8 +1,11 @@
 var selectedUsername = "";
 var esid = "";
+var accid = "";
+var matchesToDisplay = 4;
 var selectedQueue = -1;
 var selectedWidget = -1;
 var summoner;
+var matchList = [];
 
 const numOfQueueTypes = 2;
 const queues = [
@@ -69,6 +72,10 @@ function init()
         $("#confirm_btns").hide();
         $("#profile_display").hide();
     });
+
+    $("#setting_test").click(function(){
+        reloadMatchHistory();
+    });
 }
 
 function checkName()
@@ -83,14 +90,14 @@ function checkName()
     })
     .done(function (data) {
         esid = data['id'];
+        accid = data['accountId']
         selectedUsername = data['name'];
         if (esid != "")
             retrieveStats();
-            else
-            console.log("EOROROR");
     })
     .fail(function (xhr, status, error) {
         document.getElementById("error_msg").innerHTML = "Error: Summoner name does not exist";
+        turnOff();
     })
 }
 
@@ -144,14 +151,25 @@ function retrieveStats()
 
 function fetchWidget()
 {
+    clearPreview();
     switch(selectedWidget)
     {
         case 0:
             break;
         case 1:
             var a = document.getElementById("continue").href = "./rank.html?username="+selectedUsername+"&queue="+queues[selectedQueue];
+            addSetting({type:'checkbox'}, "Show Username", "username", false);
+            addSetting({type:'checkbox'}, "Show Tier", "tier", true);
+            addSetting({type:'checkbox'}, "Show LP", "lp", true);
+            addSetting({type:'checkbox'}, "Show Win/Loss", "winloss", true);
+            displayRankWidget();
             break;
         case 2:
+            var data = [1,2,3,4];
+            addSetting({type:'checkbox'}, "Ranked Only", "rankedonly", false);
+            addSetting({type:'dropdown', data}, "# of Matches", "username", false);
+            addSetting({type:'testBtn'}, "Test", "test", false);
+            displayMatchHistoryWidget();
             break;
         case 3:
             break;
@@ -179,12 +197,125 @@ function selectWidget(clickedButton)
 
     $("#confirm_btns").hide();
     $("#profile_display").hide();
+    $("#widgets_main").show();
+}
 
+function editWidgetSettings(clickedButton)
+{
+    const s = $(clickedButton).attr('id');
+    var matches = s.match(/(\d+)/);
+    var btnNum = parseInt(matches[0]);
+
+    selectedWidget = btnNum;
+
+    $("#profile_display").show();
+    $("#widgets_main").hide();
+    $("#confirm_btns").show();
+
+    fetchWidget();
+}
+
+function displayMatchHistoryWidget()
+{
+    $.ajax({
+        type: 'POST',
+        url: 'localhost',
+        port: 5000,
+        dataType: "json",
+        contentType: 'application/json',
+        headers: { accid : accid, query : 'matchhistory', endIndex : matchesToDisplay }
+    })
+    .done(function (data) {
+        document.getElementById("profile_rank").innerHTML = '<div style="position: relative; top:0px; left:0px"><img src="./img/match_history_border.gif"><div>';
+        $("#profile_rank").append("<div id='matches' class='profile_info' style='position: relative; top:-36px;'></div>");
+        var matchesString = "";
+        for (var i = 0; i < 4; i++)
+        {
+            matchesString += '<div id="match'+i+'"><img src="./img/match_history_loading.gif"></div>';
+        }
+        $("#matches").append(matchesString);
+
+        for (var i = 0; i < data['matches'].length; i++)
+        {
+            var gameId = data['matches'][i]['gameId'];
+            var champion = data['matches'][i]['champion'];
+            var role = data['matches'][i]['role'];
+            var match = new Match(gameId, champion, role, i);
+            matchList.push(match);
+            loadStats(match);
+        }
+
+    })
+    .fail(function (xhr, status, error) {
+        document.getElementById("error_msg").innerHTML = "Error: Summoner name does not exist";
+        turnOff();
+    })
+}
+var rot = 0;
+var ys = [36,36,36,36];
+var ysr = [-108,-72,-36,0];
+function reloadMatchHistory()
+{
+    ys[rot] = -108+(rot*36);
+    for (var i = matchList.length-1; i > -1; i--)
+    {
+        if (i >= matchList.length-1)
+            matchList[i].localId = matchList[i].localId+1;
+        else
+            matchList[i].localId++;
+        $("#match"+i).attr("id", "match"+matchList[i].localId);
+    }
+    if (matchList[matchList.length-1].localId >= matchList.length){
+        matchList[matchList.length-1].localId = 0;
+        $("#match"+matchList.length).attr("id", "match0");
+    }
+    var tl = gsap.timeline();
+    for (var i = 0; i < matchList.length; i++)
+    {
+        if (i == 0)
+        {
+            tl.to("#match"+i, {y: 36*(rot+1), autoAlpha: 0, duration: 1})
+                .to("#match"+i, {y: ysr[i], autoAlpha: 100, duration: 0});
+                
+        }
+        else
+        {
+            gsap.to("#match"+i, {y: ys[i], duration: 1})
+        }
+        document.getElementById("match"+i).style.removeProperty("opacity");
+    }
+    
+    for (var i = 0; i < 4; i++)
+    {
+        ys[i] += 36;
+        if(ys[i] > 144)
+            ys[i] = 36;
+        ysr[i] +=36;
+        if(ysr[i] > 0)
+            ysr[i] = -108;
+    }
+    
+    rot++;
+    if (rot > 3)
+    {
+        ys = [36,36,36,36];
+        rot = 0;
+    }
+    
+    var dummyMatch = new Match(1234, 89, "DUO_SUPPORT", 0);
+    matchList.pop();
+    matchList.splice(0,0,dummyMatch);
+}
+
+function displayRankWidget()
+{
     var queueObj = summoner.getQueueObj();
+    $("#profile_name").show();
     document.getElementById("profile_name").innerHTML = summoner.summonerName;
     document.getElementById("profile_tier").innerHTML = queueObj.tier + " " + queueObj.rank;
     document.getElementById("profile_lp").innerHTML = "";
     document.getElementById("profile_series").innerHTML = "";
+    
     if (queueObj.miniSeries)
     {
         var ms = "";
@@ -222,22 +353,6 @@ function selectWidget(clickedButton)
             document.getElementById("profile_rank").innerHTML = "<img src='./img/DIAMOND.png'>";
             break;
     }
-    $("#widgets_main").show();
-}
-
-function editWidgetSettings(clickedButton)
-{
-    const s = $(clickedButton).attr('id');
-    var matches = s.match(/(\d+)/);
-    var btnNum = parseInt(matches[0]);
-
-    selectedWidget = btnNum;
-
-    $("#profile_display").show();
-    $("#widgets_main").hide();
-    $("#confirm_btns").show();
-
-    fetchWidget();
 }
 
 function turnOff()
@@ -250,6 +365,95 @@ function turnOff()
     $("#queue_selection").hide();
     $("#load_area").hide();
     $("#confirm_btns").hide();
+}
+
+function clearPreview()
+{
+    document.getElementById("settings").innerHTML = '';
+    $("#profile_name").hide();
+    document.getElementById("profile_rank").innerHTML = '';
+    document.getElementById("profile_name").innerHTML = '';
+    document.getElementById("profile_tier").innerHTML = '';
+    document.getElementById("profile_lp").innerHTML = '';
+    document.getElementById("profile_series").innerHTML = '';
+    document.getElementById("profile_winrate").innerHTML = '';
+    
+}
+
+function addSetting(inputType, label, settingId, isChecked)
+{
+    switch(inputType.type)
+    {
+        case 'checkbox':
+            var checked = "";
+            if (isChecked)
+                checked = "checked";
+            $("#settings").append(
+                '<div>' +
+                '<input type="checkbox" style="margin:2px" name="setting_' + settingId + '" id="setting_' + settingId + '" ' + checked + '>' +
+                '<label style="margin:2px" for="setting_'+settingId+'">' + label + '</label>' +
+                '</div>'
+            );
+            break;
+        case 'dropdown':
+            $("#settings").append(
+                '<div>' +
+                '<select style="margin:2px" name="setting_' + settingId + '" id="setting_' + settingId + '"></select>' +
+                '<label style="margin:2px" for="setting_'+ settingId+'">' + label + '</label>' +
+                '</div>'
+            );
+            var dropdown = document.getElementById("setting_"+settingId);
+            for (var i = 0; i < inputType.data.length; i++)
+            {
+                var option = document.createElement("option");
+                option.text = inputType.data[i];
+                option.id = "setting_" + settingId + inputType.data[i];
+                dropdown.add(option);
+            }
+            break;
+        case 'testBtn':
+            $("#settings").append(
+                '<div>' +
+                '<div class="goBtn" id="setting_'+ settingId +'">'+ label +'</div>' +
+                '</div>'
+            );
+            $("#setting_test").click(function(){
+                reloadMatchHistory();
+            });
+            break;
+    }
+}
+
+function loadStats(match)
+{
+    $.ajax({
+        type: 'POST',
+        url: 'localhost',
+        port: 5000,
+        dataType: "json",
+        contentType: 'application/json',
+        headers: { gameid : match.gameId, query : 'matchstats' }
+    })
+    .done(function (data) {
+        for (var i = 0; i < 10; i++)
+        {
+            if (data['participantIdentities'][i]['player']['summonerName'] == selectedUsername)
+            {
+                match.kills = data['participants'][i]['stats']['kills'];
+                match.deaths = data['participants'][i]['stats']['deaths'];
+                match.assists = data['participants'][i]['stats']['assists'];
+                match.win = data['participants'][i]['stats']['win'];
+            }
+        }
+        if (match.win)
+            document.getElementById("match"+match.localId).innerHTML = '<img src="./img/match_history_win.png">';
+        else
+            document.getElementById("match"+match.localId).innerHTML = '<img src="./img/match_history_loss.png">';
+    })
+    .fail(function (xhr, status, error) {
+        document.getElementById("error_msg").innerHTML = "Error: Could not retrieve match statistics";
+        turnOff();
+    });
 }
 
 class Summoner {
@@ -319,6 +523,26 @@ class QueueType {
             }
             //console.log("Mini Series: " + s);
         }
+    }
+}
+
+class Match
+{
+    constructor(gameId, champion, role, localId)
+    {
+        this.gameId = gameId;
+        this.champion = champion;
+        this.role = role;
+        this.kills = 0;
+        this.deaths = 0;
+        this.assists = 0;
+        this.win = false;
+        this.localId = localId;
+    }
+    displayMatch()
+    {
+        console.log("Local ID: " + this.localId + " Game ID: " + this.gameId);
+        console.log("Champion: " + this.champion + " | Role: " + this.role + " | Score: " + this.kills + "/" + this.deaths + "/" + this.assists);
     }
 }
 

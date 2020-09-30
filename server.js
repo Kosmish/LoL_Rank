@@ -6,6 +6,7 @@ const request = require('request');
 
 var summoner_name = "";
 var encrypted_summoner_id = "";
+var encrypted_account_id = "";
 var apiKey = '';
 
 //-----------------------------//
@@ -91,6 +92,45 @@ const requestListener = function (req, res) {
                     else
                     {
                         return console.log("[Error] getID Failure: " + res2.statusCode);
+                    }
+                });
+            }
+            else if (req.headers['accid']) {
+                encrypted_account_id = req.headers['accid'];
+                let endpoint = 'https://na1.api.riotgames.com/lol/match/v4/matchlists/by-account/' + encrypted_account_id + '?endIndex=' + req.headers['endindex'] + '&api_key=' + apiKey;
+                request(endpoint, { json: true }, (err, res2, body) => {
+                    if (err) {
+                        return console.log(err);
+                    }
+                    if (res2.statusCode == 200)
+                    {
+                        console.log("[Server] User Match History Request: " + req.headers['accid']);
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(body));
+                    }
+                    else
+                    {
+                        return console.log("[Error] getAccID Failure: " + res2.statusCode);
+                    }
+                });
+            }
+            else if (req.headers['gameid'])
+            {
+                var gameId = req.headers['gameid'];
+                let endpoint = 'https://na1.api.riotgames.com/lol/match/v4/matches/' + gameId + '?api_key=' + apiKey;
+                request(endpoint, { json: true }, (err, res2, body) => {
+                    if (err) {
+                        return console.log(err);
+                    }
+                    if (res2.statusCode == 200)
+                    {
+                        console.log("[Server] User Match Request: " + req.headers['gameid']);
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(body));
+                    }
+                    else
+                    {
+                        return console.log("[Error] getGameID Failure: " + res.statusCode);
                     }
                 });
             }
