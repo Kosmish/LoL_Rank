@@ -246,7 +246,7 @@ a
 }
 .match_text, .match_score
 {
-    font-family: 'DogicaRegular';
+    font-family: 'DogicaRegular','Arial';
     font-weight: bold;
     font-style: normal; 
     font-size: 8px;

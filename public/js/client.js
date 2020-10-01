@@ -418,7 +418,9 @@ function clearPreview()
     document.getElementById("profile_lp").innerHTML = '';
     document.getElementById("profile_series").innerHTML = '';
     document.getElementById("profile_winrate").innerHTML = '';
-    
+    rot = 0;
+    ys = [];
+    ysr = [];
 }
 
 function addSetting(inputType, label, settingId, isChecked)
