@@ -9,13 +9,14 @@ var encrypted_summoner_id = "";
 var encrypted_account_id = "";
 var apiKey = '';
 
+let championsAPI = 'http://ddragon.leagueoflegends.com/cdn/10.20.1/data/en_US/champion.json';
+
 //-----------------------------//
 
 const requestListener = function (req, res) {
     let filePath = "";
 
     var queryParams = url.parse(req.url,true).query;
-
     if (req.headers['query'])
     {
         filePath = path.join(__dirname, 'public', '/index.html');
@@ -24,11 +25,6 @@ const requestListener = function (req, res) {
     {
         var a = url.parse(req.url).pathname;
         filePath = path.join(__dirname, 'public', req.url === '/' ? 'index.html' : a);
-
-        if (queryParams.username)
-        {
-            filePath = path.join(__dirname, 'public', '/rank.html');
-        }
     }
     fs.readFile(filePath, (err, content) => {
         if(err) {
@@ -49,7 +45,25 @@ const requestListener = function (req, res) {
         }
         else
         {
-            if (req.headers['username']) {
+            if (req.headers['champions'])
+            {
+                request(championsAPI, { json: true }, (err, res2, body) => {
+                    if (err) {
+                        return console.log(err);
+                    }
+                    if (res2.statusCode == 200)
+                    {
+                        console.log("[Server] Champions API Call");
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(body));
+                    }
+                    else
+                    {
+                        return console.log("[Error] getChampions Failure: " + res.statusCode);
+                    }
+                });
+            }
+            else if (req.headers['username']) {
                 summoner_name = req.headers['username'];
                 let endpoint = 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summoner_name + '?api_key=' + apiKey;
             

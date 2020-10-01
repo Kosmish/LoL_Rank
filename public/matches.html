@@ -1,0 +1,122 @@
+<html>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        <title id="page_title">LoL Streamer+ | Match History</title>
+        <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/dogica" type="text/css"/> 
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      </head>
+
+      <body>
+        <div class="profile_container" id="profile_display">
+            <div class="profile">
+                <div id="profile_rank" class="profile_info"></div>
+            </div>
+        </div>
+      </body>
+</html>
+<script src="./js/matches.js"></script>
+
+<style>
+  * {
+      margin: 0;
+      padding: 0;
+  }
+  html
+  {
+      width: 100%;
+      height: 100%;
+      font-family: 'Minecraft', 'Arial';
+      color: #ffffff;
+  }
+  .rank_widget
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+.match_pic
+{
+    position: relative;
+}
+.match_text, .match_score
+{
+    font-family: 'DogicaRegular';
+    font-weight: bold;
+    font-style: normal; 
+    font-size: 16px;
+    position: absolute;
+    top: 16;
+    left: 52;
+}
+.match_score
+{
+    font-weight: normal;
+    top: 38;
+}
+.profile_container
+{
+    display: flex;
+    flex-direction: row;
+}
+
+.profile
+{
+    flex-direction: column;
+    padding: 10px;
+    margin: 10px;
+}
+
+.profile_detail
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    background-color: #333333;
+    border-radius: 4px;
+    padding: 4px;
+    margin: 5px 5px 5px 5px;
+    position: relative;
+    bottom: 0px;
+}
+
+.profile_info
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.profile_container
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+.goBtn
+{
+    background-color: #3c8539;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+    border: 2px solid #222222;
+    padding: 10px;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+    cursor: default;
+    transition: 0.3s;
+}
+.goBtn:hover
+{
+    background-color: #479c44;
+}
+</style>

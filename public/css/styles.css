@@ -8,7 +8,9 @@ html
     width: 100%;
     height: 100%;
     background-color: #333333;
-    font-family: 'Minecraft', 'Arial';
+    font-family: 'Minecraft','Arial';
+    font-weight: normal;
+    font-style: normal;
     color: #ffffff;
 }
 
@@ -237,4 +239,23 @@ a
     flex-direction: column;
     width: 100%;
     height: 100%;
+}
+.match_pic
+{
+    position: relative;
+}
+.match_text, .match_score
+{
+    font-family: 'DogicaRegular';
+    font-weight: bold;
+    font-style: normal; 
+    font-size: 8px;
+    position: absolute;
+    top: 8;
+    left: 26;
+}
+.match_score
+{
+    font-weight: normal;
+    top: 19;
 }

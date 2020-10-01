@@ -19,8 +19,18 @@ const widgets = [
     "GHOST_SHIELD"
 ];
 
+var champions = [];
+
+//Used for Match History Widget Rotation
+const matchSizePixels = 36;
+var rot = 0;
+var ys = [];
+var ysr = [];
+//--------------------------------------
+
 function init()
 {
+    loadChampions();
     $("#load_area").hide();
     $("#widgets_main").hide();
     $("#profile_display").hide();
@@ -76,6 +86,31 @@ function init()
     $("#setting_test").click(function(){
         reloadMatchHistory();
     });
+}
+
+function loadChampions()
+{
+    $.ajax({
+        type: 'POST',
+        url: 'localhost',
+        port: 5000,
+        dataType: "json",
+        contentType: 'application/json',
+        headers: { champions : true, query : true }
+    })
+    .done(function (data) {
+        let championList = data.data;
+        
+        for (var i in championList)
+        {
+            const key = championList[i].key;
+            const name = championList[i].id;
+            champions.push({key : key, name : name});
+        }
+    })
+    .fail(function (xhr, status, error) {
+        console.log("Error fetching champion data");
+    })
 }
 
 function checkName()
@@ -165,7 +200,8 @@ function fetchWidget()
             displayRankWidget();
             break;
         case 2:
-            var data = [1,2,3,4];
+            var a = document.getElementById("continue").href = "./matches.html?username="+selectedUsername+"&queue="+queues[selectedQueue];
+            var data = [1,2,3,4,5,6,7,8];
             addSetting({type:'checkbox'}, "Ranked Only", "rankedonly", false);
             addSetting({type:'dropdown', data}, "# of Matches", "username", false);
             addSetting({type:'testBtn'}, "Test", "test", false);
@@ -226,15 +262,20 @@ function displayMatchHistoryWidget()
         headers: { accid : accid, query : 'matchhistory', endIndex : matchesToDisplay }
     })
     .done(function (data) {
-        document.getElementById("profile_rank").innerHTML = '<div style="position: relative; top:0px; left:0px"><img src="./img/match_history_border.gif"><div>';
-        $("#profile_rank").append("<div id='matches' class='profile_info' style='position: relative; top:-36px;'></div>");
+        document.getElementById("profile_rank").innerHTML = '<div style="position: relative; top:0px; left:0px"><img src="./img/match_history_border32.gif"><div>';
+        $("#profile_rank").append("<div id='matches' class='profile_info' style='position: relative; top:-"+matchSizePixels+"px;'></div>");
         var matchesString = "";
-        for (var i = 0; i < 4; i++)
+        for (var i = 0; i < matchesToDisplay; i++)
         {
-            matchesString += '<div id="match'+i+'"><img src="./img/match_history_loading.gif"></div>';
+            matchesString += '<div id="match'+i+'" class="match_container"><img src="./img/match_history_loading32.gif"></div>';
         }
         $("#matches").append(matchesString);
 
+        for (var i = 0, j = matchesToDisplay; i < matchesToDisplay; i++, j--)
+        {
+            ys.push(matchSizePixels);
+            ysr.push(matchSizePixels-(j*matchSizePixels));
+        }
         for (var i = 0; i < data['matches'].length; i++)
         {
             var gameId = data['matches'][i]['gameId'];
@@ -251,30 +292,27 @@ function displayMatchHistoryWidget()
         turnOff();
     })
 }
-var rot = 0;
-var ys = [36,36,36,36];
-var ysr = [-108,-72,-36,0];
 function reloadMatchHistory()
 {
-    ys[rot] = -108+(rot*36);
-    for (var i = matchList.length-1; i > -1; i--)
+    ys[rot] = (matchSizePixels-(matchesToDisplay*matchSizePixels))+(rot*matchSizePixels);
+    for (var i = matchesToDisplay-1; i > -1; i--)
     {
-        if (i >= matchList.length-1)
+        if (i >= matchesToDisplay-1)
             matchList[i].localId = matchList[i].localId+1;
         else
             matchList[i].localId++;
         $("#match"+i).attr("id", "match"+matchList[i].localId);
     }
-    if (matchList[matchList.length-1].localId >= matchList.length){
-        matchList[matchList.length-1].localId = 0;
-        $("#match"+matchList.length).attr("id", "match0");
+    if (matchList[matchesToDisplay-1].localId >= matchesToDisplay){
+        matchList[matchesToDisplay-1].localId = 0;
+        $("#match"+matchesToDisplay).attr("id", "match0");
     }
     var tl = gsap.timeline();
-    for (var i = 0; i < matchList.length; i++)
+    for (var i = 0; i < matchesToDisplay; i++)
     {
         if (i == 0)
         {
-            tl.to("#match"+i, {y: 36*(rot+1), autoAlpha: 0, duration: 1})
+            tl.to("#match"+i, {y: matchSizePixels*(rot+1), autoAlpha: 0, duration: 1})
                 .to("#match"+i, {y: ysr[i], autoAlpha: 100, duration: 0});
                 
         }
@@ -285,20 +323,23 @@ function reloadMatchHistory()
         document.getElementById("match"+i).style.removeProperty("opacity");
     }
     
-    for (var i = 0; i < 4; i++)
+    for (var i = 0; i < matchesToDisplay; i++)
     {
-        ys[i] += 36;
-        if(ys[i] > 144)
-            ys[i] = 36;
-        ysr[i] +=36;
+        ys[i] += matchSizePixels;
+        if(ys[i] > matchSizePixels * matchesToDisplay)
+            ys[i] = matchSizePixels;
+        ysr[i] += matchSizePixels;
         if(ysr[i] > 0)
-            ysr[i] = -108;
+            ysr[i] = matchSizePixels-(matchesToDisplay*matchSizePixels);
     }
     
     rot++;
-    if (rot > 3)
+    if (rot >= matchesToDisplay)
     {
-        ys = [36,36,36,36];
+        for (var i = 0; i < matchesToDisplay; i++)
+        {
+            ys[i] = matchSizePixels;
+        }
         rot = 0;
     }
     
@@ -443,12 +484,20 @@ function loadStats(match)
                 match.deaths = data['participants'][i]['stats']['deaths'];
                 match.assists = data['participants'][i]['stats']['assists'];
                 match.win = data['participants'][i]['stats']['win'];
+                for (var j = 0; j < champions.length; j++)
+                {
+                    if (data['participants'][i]['championId'] == champions[j].key)
+                    {
+                        match.championName = champions[j].name;
+                        break;
+                    }
+                }
             }
         }
         if (match.win)
-            document.getElementById("match"+match.localId).innerHTML = '<img src="./img/match_history_win.png">';
+            document.getElementById("match"+match.localId).innerHTML = '<div class="match_pic"><img src="./img/match_history_win32.png"><div class="match_text">'+match.championName+'</div><div class="match_score">'+match.getScore()+'</div></div>';
         else
-            document.getElementById("match"+match.localId).innerHTML = '<img src="./img/match_history_loss.png">';
+            document.getElementById("match"+match.localId).innerHTML = '<div class="match_pic"><img src="./img/match_history_loss32.png"><div class="match_text">'+match.championName+'</div><div class="match_score">'+match.getScore()+'</div></div>';
     })
     .fail(function (xhr, status, error) {
         document.getElementById("error_msg").innerHTML = "Error: Could not retrieve match statistics";
@@ -532,6 +581,7 @@ class Match
     {
         this.gameId = gameId;
         this.champion = champion;
+        this.championName = "";
         this.role = role;
         this.kills = 0;
         this.deaths = 0;
@@ -543,6 +593,10 @@ class Match
     {
         console.log("Local ID: " + this.localId + " Game ID: " + this.gameId);
         console.log("Champion: " + this.champion + " | Role: " + this.role + " | Score: " + this.kills + "/" + this.deaths + "/" + this.assists);
+    }
+    getScore()
+    {
+        return this.kills + "/" + this.deaths + "/" + this.assists;
     }
 }
 

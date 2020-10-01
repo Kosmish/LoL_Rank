@@ -109,6 +109,7 @@ function retrieveStats(esid)
             }
             document.getElementById("profile_winrate").innerHTML = data[queueIndex]['wins'] + "W - " + data[queueIndex]['losses'] + "L";
         }
+        setTimeout(retrieveStats(esid), 60000);
     })
     .fail(function (xhr, status, error) {
         console.log('Error: ' + error.message);
