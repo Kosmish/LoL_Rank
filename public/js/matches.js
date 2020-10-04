@@ -226,14 +226,18 @@ function checkUpdate()
         headers: { accid : accid, query : 'matchhistory', endIndex : 1 }
     })
     .done(function (data) {
-        if (data['matches'][0].gameId != matchList[0].gameId)
+        for (var i = 0; i < data['matches'].length; i++)
         {
-            console.log("Update!!!");
-            loadNewGame(data);
-        }
-        else
-        {
-            console.log("No Update");
+            if (data['matches'][0].gameId != matchList[i].gameId)
+            {
+                console.log("Update!!!");
+                loadNewGame(data);
+                break;
+            }
+            else
+            {
+                console.log("No Update");
+            }
         }
         setTimeout(checkUpdate, 60000);
     })

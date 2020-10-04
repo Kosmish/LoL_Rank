@@ -190,6 +190,13 @@ function fetchWidget()
     switch(selectedWidget)
     {
         case 0:
+            var data = [];
+            for (var i in champions)
+            {
+                data.push(champions[i].name);
+            }
+            addSetting({type:'dropdown', data}, "Champion", "champion", false);
+            displayChampionMasteryWidget();
             break;
         case 1:
             var a = document.getElementById("continue").href = "./rank.html?username="+selectedUsername+"&queue="+queues[selectedQueue];
@@ -203,7 +210,7 @@ function fetchWidget()
             var a = document.getElementById("continue").href = "./matches.html?username="+selectedUsername+"&queue="+queues[selectedQueue];
             var data = [1,2,3,4,5,6,7,8];
             addSetting({type:'checkbox'}, "Ranked Only", "rankedonly", false);
-            addSetting({type:'dropdown', data}, "# of Matches", "username", false);
+            addSetting({type:'dropdown', data}, "# of Matches", "nummatches", false);
             addSetting({type:'testBtn'}, "Test", "test", false);
             displayMatchHistoryWidget();
             break;
@@ -249,6 +256,11 @@ function editWidgetSettings(clickedButton)
     $("#confirm_btns").show();
 
     fetchWidget();
+}
+
+function displayChampionMasteryWidget()
+{
+    document.getElementById("profile_rank").innerHTML = '<div><img src="./img/mastery_full.png"><div>';
 }
 
 function displayMatchHistoryWidget()

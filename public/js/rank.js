@@ -1,5 +1,6 @@
 var selectedUsername = ""; //grab username from URL
 var selectedQueue = ""; //ex: "solo"
+var esid = "";
 
 const queues = [
     "RANKED_SOLO_5x5",
@@ -37,7 +38,8 @@ function checkName()
         {
             selectedUsername = data['name'];
             document.getElementById("page_title").innerHTML = selectedUsername + " | LoL Streamer+";
-            retrieveStats(data['id']);
+            esid = data['id'];
+            retrieveStats();
         }
         else
             console.log("Error: Summoner does not exist");
@@ -47,8 +49,9 @@ function checkName()
     })
 }
 
-function retrieveStats(esid)
+function retrieveStats()
 {
+    console.log("retrieving...");
     $.ajax({
         type: 'POST',
         url: 'localhost',
@@ -92,9 +95,11 @@ function retrieveStats(esid)
             if (data[queueIndex]['leaguePoints'] != 100)
             {
                 document.getElementById("profile_lp").innerHTML = data[queueIndex]['leaguePoints'] + " LP";
+                document.getElementById("profile_series").innerHTML = "";
             }
-                if (data[queueIndex]['miniSeries'])
+            if (data[queueIndex]['miniSeries'])
             {
+                document.getElementById("profile_lp").innerHTML = "";
                 var ms = "";
                 for (var i = 0; i < data[queueIndex]['miniSeries']['target'] * 2 - 1; i++)
                 {
@@ -109,7 +114,7 @@ function retrieveStats(esid)
             }
             document.getElementById("profile_winrate").innerHTML = data[queueIndex]['wins'] + "W - " + data[queueIndex]['losses'] + "L";
         }
-        
+        setTimeout(retrieveStats, 60000);
     })
     .fail(function (xhr, status, error) {
         console.log('Error: ' + error.message);

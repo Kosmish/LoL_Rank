@@ -8,3 +8,4 @@ All widgets automatically update, so you and your stream can see how you progres
 
 ![intro](./intro.png)
 
+![intro2](./intro2.png)
