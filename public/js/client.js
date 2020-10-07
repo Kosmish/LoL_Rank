@@ -200,7 +200,7 @@ function fetchWidget()
             break;
         case 1:
             var a = document.getElementById("continue").href = "./rank.html?username="+selectedUsername+"&queue="+queues[selectedQueue];
-            addSetting({type:'checkbox'}, "Show Username", "username", false);
+            addSetting({type:'checkbox'}, "Show Username", "username", true);
             addSetting({type:'checkbox'}, "Show Tier", "tier", true);
             addSetting({type:'checkbox'}, "Show LP", "lp", true);
             addSetting({type:'checkbox'}, "Show Win/Loss", "winloss", true);
@@ -391,21 +391,7 @@ function displayRankWidget()
 
     document.getElementById("profile_rank").innerHTML = "";
     
-    switch(queueObj.tier)
-    {
-        case "CHALLENGER":
-            document.getElementById("profile_rank").innerHTML = "<img src='./img/CHALLENGER.png'>";
-            break;
-        case "GRANDMASTER":
-            document.getElementById("profile_rank").innerHTML = "<img src='./img/GRANDMASTER.png'>";
-            break;
-        case "MASTER":
-            document.getElementById("profile_rank").innerHTML = "<img src='./img/MASTER.png'>";
-            break;
-        case "DIAMOND":
-            document.getElementById("profile_rank").innerHTML = "<img src='./img/DIAMOND.png'>";
-            break;
-    }
+    document.getElementById("profile_rank").innerHTML = "<img src='./img/" + queueObj.tier + ".png'>";
 }
 
 function turnOff()

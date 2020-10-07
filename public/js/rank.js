@@ -75,21 +75,7 @@ function retrieveStats()
                     queueIndex = i;
                 }
             }
-            switch(data[queueIndex]['tier'])
-            {
-                case "CHALLENGER":
-                    document.getElementById("profile_rank").innerHTML = "<img src='./img/CHALLENGER.png'>";
-                    break;
-                case "GRANDMASTER":
-                    document.getElementById("profile_rank").innerHTML = "<img src='./img/GRANDMASTER.png'>";
-                    break;
-                case "MASTER":
-                    document.getElementById("profile_rank").innerHTML = "<img src='./img/MASTER.png'>";
-                    break;
-                case "DIAMOND":
-                    document.getElementById("profile_rank").innerHTML = "<img src='./img/DIAMOND.png'>";
-                    break;
-            }
+            document.getElementById("profile_rank").innerHTML = "<img src='./img/" + data[queueIndex]['tier'] + ".png'>";
             document.getElementById("profile_name").innerHTML = selectedUsername;
             document.getElementById("profile_tier").innerHTML = data[queueIndex]['tier'] + " " + data[queueIndex]['rank'];
             if (data[queueIndex]['leaguePoints'] != 100)
