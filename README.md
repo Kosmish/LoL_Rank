@@ -9,3 +9,8 @@ All widgets automatically update, so you and your stream can see how you progres
 ![intro](./intro.png)
 
 ![intro2](./intro2.png)
+
+## Show off your stats both in game and out!
+![intro3](./intro3.png)
+
+![intro4](./intro4.png)
