@@ -122,8 +122,8 @@ function displayMatchHistoryWidget(accid)
         checkUpdate();
     })
     .fail(function (xhr, status, error) {
+        loadStats(match);
         document.getElementById("error_msg").innerHTML = "Error: Summoner name does not exist";
-        turnOff();
     })
 }
 
@@ -163,7 +163,6 @@ function loadStats(match)
     })
     .fail(function (xhr, status, error) {
         document.getElementById("error_msg").innerHTML = "Error: Could not retrieve match statistics";
-        turnOff();
     });
 }
 function loadNewGame(newGameData)
@@ -212,7 +211,6 @@ function loadNewGame(newGameData)
     })
     .fail(function (xhr, status, error) {
         document.getElementById("error_msg").innerHTML = "Error: Could not retrieve match statistics";
-        turnOff();
     });
 }
 function checkUpdate()
@@ -243,7 +241,6 @@ function checkUpdate()
     })
     .fail(function (xhr, status, error) {
         console.log("yo");
-        turnOff();
     })
 }
 function reloadMatchHistory(update)

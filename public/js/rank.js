@@ -78,12 +78,12 @@ function retrieveStats()
             document.getElementById("profile_rank").innerHTML = "<img src='./img/" + data[queueIndex]['tier'] + ".png'>";
             document.getElementById("profile_name").innerHTML = selectedUsername;
             document.getElementById("profile_tier").innerHTML = data[queueIndex]['tier'] + " " + data[queueIndex]['rank'];
-            if (data[queueIndex]['leaguePoints'] != 100)
+            if (!data[queueIndex]['miniSeries'])
             {
                 document.getElementById("profile_lp").innerHTML = data[queueIndex]['leaguePoints'] + " LP";
                 document.getElementById("profile_series").innerHTML = "";
             }
-            if (data[queueIndex]['miniSeries'])
+            else
             {
                 document.getElementById("profile_lp").innerHTML = "";
                 var ms = "";

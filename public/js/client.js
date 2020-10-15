@@ -196,6 +196,7 @@ function fetchWidget()
                 data.push(champions[i].name);
             }
             addSetting({type:'dropdown', data}, "Champion", "champion", false);
+            var a = document.getElementById("continue").href = "./mastery.html?username="+selectedUsername+"&champion="+champions[0].name;
             displayChampionMasteryWidget();
             break;
         case 1:
@@ -261,6 +262,11 @@ function editWidgetSettings(clickedButton)
 function displayChampionMasteryWidget()
 {
     document.getElementById("profile_rank").innerHTML = '<div><img src="./img/mastery_full.png"><div>';
+    
+    $(".setting_champion").click(function(){
+        var champion = document.getElementById("setting_champion").value;
+        document.getElementById("continue").href = "./mastery.html?username=" + selectedUsername + "&champion=" + champion;
+    });
 }
 
 function displayMatchHistoryWidget()
@@ -439,7 +445,7 @@ function addSetting(inputType, label, settingId, isChecked)
         case 'dropdown':
             $("#settings").append(
                 '<div>' +
-                '<select style="margin:2px" name="setting_' + settingId + '" id="setting_' + settingId + '"></select>' +
+                '<select style="margin:2px" class="dropdownBox" name="setting_' + settingId + '" id="setting_' + settingId + '"></select>' +
                 '<label style="margin:2px" for="setting_'+ settingId+'">' + label + '</label>' +
                 '</div>'
             );
@@ -448,6 +454,7 @@ function addSetting(inputType, label, settingId, isChecked)
             {
                 var option = document.createElement("option");
                 option.text = inputType.data[i];
+                option.className = "setting_" + settingId;
                 option.id = "setting_" + settingId + inputType.data[i];
                 dropdown.add(option);
             }
