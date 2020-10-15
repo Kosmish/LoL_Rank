@@ -63,6 +63,25 @@ const requestListener = function (req, res) {
                     }
                 });
             }
+            else if (req.headers['query'] == 'getchampionid')
+            {
+                let endpoint = 'http://ddragon.leagueoflegends.com/cdn/10.21.1/data/en_US/champion/'+req.headers['champion']+'.json';
+                request(endpoint, { json: true }, (err, res2, body) => {
+                    if (err) {
+                        return console.log(err);
+                    }
+                    if (res2.statusCode == 200)
+                    {
+                        console.log("[Server] Get Champion ID: " + req.headers['champion']);
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(body));
+                    }
+                    else
+                    {
+                        return console.log("[Error] getChampionId Failure: " + res2.statusCode);
+                    }
+                });
+            }
             else if (req.headers['username']) {
                 summoner_name = req.headers['username'];
                 let endpoint = 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summoner_name + '?api_key=' + apiKey;
@@ -148,7 +167,28 @@ const requestListener = function (req, res) {
                     }
                 });
             }
-            
+            else if (req.headers['query'] == 'mastery')
+            {
+                var summoner = req.headers['summonerid'];
+                var champion = req.headers['championid'];
+                console.log (summoner + " | " + champion);
+                let endpoint = 'https://na1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/' + summoner + '/by-champion/' + champion + '?api_key=' + apiKey;
+                request(endpoint, { json: true }, (err, res2, body) => {
+                    if (err) {
+                        return console.log(err);
+                    }
+                    if (res2.statusCode == 200)
+                    {
+                        console.log("[Server] Champion Mastery Request: " + summoner + " - " + champion);
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(body));
+                    }
+                    else
+                    {
+                        return console.log("[Error] getChampionMastery Failure: " + res.statusCode);
+                    }
+                });
+            }
             else if (queryParams.username && req.headers['query'] == 'true')
             {
                 res.writeHead(200, { 'Content-Type': 'application/json'});
