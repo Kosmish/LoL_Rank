@@ -6,11 +6,12 @@
         <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/dogica" type="text/css"/> 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <title>LoL Streamer+</title>
+        <script src="https://kit.fontawesome.com/a29ba8a3bf.js" crossorigin="anonymous"></script>
+        <title>LoL Streamer</title>
       </head>
 
       <body>
-            <a href="./index.html"><div class="top"><h1>LoL Streamer+</h1></div></a>
+            <div class="top"><a href="./index.html" class="indexlink"><h1>LoL Streamer</h1></a></div>
 
             <div class="mid">
 
@@ -33,7 +34,6 @@
                             <div class="profile_detail" id="profile_name"></div>
                             <div id="profile_tier"></div>
                             <div id="profile_lp"></div>
-                            <div id="profile_series"></div>
                             <div id="profile_winrate"></div>
                         </div>
                     </div>
@@ -85,11 +85,17 @@
                             Ghost Shield
                         </div>
                     </div>
-
                 </div>
-                <div class="widgets_main" style="display:none" id="confirm_btns">
-                    <a id="continue" href=""><div class="goBtn" id="go_btn">Continue</div></a>
-                    <div class="cancelBtn" id="cancelBtn">Cancel</div>
+                <div class="widgets_main" style="display:none; flex-direction: column; align-items: center;" id="confirm_btns">
+                    <div style="display: flex; flex-direction: row; margin: 5px;">
+                        <input class="url_bar" id="url_bar" readonly="readonly"></input>
+                        <div class="small_button" id="copy_btn"><i class="fas fa-copy"></i></div>
+                    </div>
+                    <div style="margin: 5px;">Simply copy the URL above and place it into your streamer software!</div>
+                    <div style="display:flex; flex-direction: row;">
+                        <div class="cancelBtn" id="cancelBtn">Back</div>
+                        <a id="continue" href=""><div class="goBtn" id="go_btn">Preview</div></a>
+                    </div>
                 </div>
                 <div style="flex-grow: 1;" id="result"></div>
 

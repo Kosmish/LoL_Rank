@@ -1,5 +1,6 @@
+const ip = "localhost";
+
 var selectedUsername = "";
-var selectedQueue = "";
 var accid = "";
 
 var champions = [];
@@ -7,22 +8,19 @@ var champions = [];
 //Used for Match History Widget Rotation
 var matchList = [];
 var matchesToDisplay = 6;
+var rankedOnly;
+var minMatches = 1;
+var maxMatches = 8;
 const matchSizePixels = 72;
 var rot = 0;
 var ys = [];
 var ysr = [];
 
-const queues = [
-    "RANKED_SOLO_5x5",
-    "RANKED_FLEX_SR"
-];
-
 function loadChampions()
 {
     $.ajax({
         type: 'POST',
-        url: 'localhost',
-        port: 5000,
+        url: ip,
         dataType: "json",
         contentType: 'application/json',
         headers: { champions : true, query : true }
@@ -51,8 +49,22 @@ function getParams()
     })
     .done(function (data) {
         selectedUsername = data['username'];
-        selectedQueue = data['queue'];
-        checkName();
+        rankedOnly = data['rankedonly'];
+        matchesToDisplay = data['nummatches'];
+
+        if (matchesToDisplay >= minMatches && matchesToDisplay <= maxMatches)
+        {
+            if (rankedOnly == 'false' || rankedOnly == 'true')
+            {
+                checkName();
+            }
+            else
+            {
+                document.getElementById("profile_rank").innerHTML = 'Error: Value for Parameter "rankedonly"';
+            }
+        }
+        else
+            document.getElementById("profile_rank").innerHTML = 'Error: Invalid Parameter Data';
     })
     .fail(function (xhr, status, error) {
         console.log('Error: ' + error.message);
@@ -63,8 +75,7 @@ function checkName()
 {
     $.ajax({
         type: 'POST',
-        url: 'localhost',
-        port: 5000,
+        url: ip,
         dataType: "json",
         contentType: 'application/json',
         headers: { username : selectedUsername, query : true }
@@ -73,7 +84,7 @@ function checkName()
         if (data['id'] != "")
         {
             selectedUsername = data['name'];
-            document.getElementById("page_title").innerHTML = selectedUsername + " | LoL Streamer+";
+            document.getElementById("page_title").innerHTML = selectedUsername + " | LoL Streamer";
             accid = data['accountId'];
             displayMatchHistoryWidget(accid);
         }
@@ -89,11 +100,10 @@ function displayMatchHistoryWidget(accid)
 {
     $.ajax({
         type: 'POST',
-        url: 'localhost',
-        port: 5000,
+        url: ip,
         dataType: "json",
         contentType: 'application/json',
-        headers: { accid : accid, query : 'matchhistory', endIndex : matchesToDisplay }
+        headers: { accid : accid, query : 'matchhistory', endIndex : matchesToDisplay, rankedonly : rankedOnly }
     })
     .done(function (data) {
         document.getElementById("profile_rank").innerHTML = '<div style="position: relative; top:0px; left:0px"><img src="./img/match_history_border.gif"><div>';
@@ -131,8 +141,7 @@ function loadStats(match)
 {
     $.ajax({
         type: 'POST',
-        url: 'localhost',
-        port: 5000,
+        url: ip,
         dataType: "json",
         contentType: 'application/json',
         headers: { gameid : match.gameId, query : 'matchstats' }
@@ -169,8 +178,7 @@ function loadNewGame(newGameData)
 {
     $.ajax({
         type: 'POST',
-        url: 'localhost',
-        port: 5000,
+        url: ip,
         dataType: "json",
         contentType: 'application/json',
         headers: { gameid : newGameData['matches'][0]['gameId'], query : 'matchstats' }
@@ -217,24 +225,18 @@ function checkUpdate()
 {
     $.ajax({
         type: 'POST',
-        url: 'localhost',
-        port: 5000,
+        url: ip,
         dataType: "json",
         contentType: 'application/json',
-        headers: { accid : accid, query : 'matchhistory', endIndex : 1 }
+        headers: { accid : accid, query : 'matchhistory', endIndex : 1, rankedonly : rankedOnly }
     })
     .done(function (data) {
         for (var i = 0; i < data['matches'].length; i++)
         {
             if (data['matches'][0].gameId != matchList[i].gameId)
             {
-                console.log("Update!!!");
                 loadNewGame(data);
                 break;
-            }
-            else
-            {
-                console.log("No Update");
             }
         }
         setTimeout(checkUpdate, 60000);

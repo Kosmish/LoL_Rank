@@ -2,7 +2,7 @@
     <head>
         <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
         <meta content="utf-8" http-equiv="encoding">
-        <title id="page_title">LoL Streamer+ | Rank</title>
+        <title id="page_title">LoL Streamer | Rank</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
       </head>
 
@@ -12,11 +12,12 @@
             <div class="profile_info" id="profile_info">
                 <div class="profile_detail" id="profile_name"></div>
                 <div id="profile_tier"></div>
-                <div id="profile_lp"></div>
+                <div id="profile_lp" class="whiteText"></div>
                 <div id="profile_series"></div>
                 <div id="profile_winrate"></div>
             </div>
         </div>
+        
       </body>
 </html>
 <script src="./js/rank.js"></script>
@@ -62,4 +63,22 @@
       justify-content: center;
       flex-direction: column;
   }
+  
+    .greenText {
+        animation: green-change 2s;
+    }
+    @keyframes green-change {
+        0% { color: #ffffff; }
+        10% { color: #00ff00; }
+        100% { color: #ffffff; }
+    }
+
+    .redText {
+        animation: red-change 2s;
+    }
+    @keyframes red-change {
+        0% { color: #ffffff; }
+        10% { color: #ff0000; }
+        100% { color: #ffffff; }
+    }
 </style>

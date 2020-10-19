@@ -1,3 +1,5 @@
+const ip = "localhost";
+
 var selectedUsername = "";
 var esid = "";
 var accid = "";
@@ -76,11 +78,18 @@ function init()
         $("#profile_display").hide();
         $("#widgets_main").show();
         selectedWidget = -1;
+        changeURLBox("");
     });
 
     $("#continueBtn").click(function(){
         $("#confirm_btns").hide();
         $("#profile_display").hide();
+    });
+
+    $("#copy_btn").click(function(){
+        url = document.getElementById("url_bar");
+        url.select();
+        document.execCommand("copy");
     });
 
     $("#setting_test").click(function(){
@@ -92,7 +101,7 @@ function loadChampions()
 {
     $.ajax({
         type: 'POST',
-        url: 'localhost',
+        url: ip,
         port: 5000,
         dataType: "json",
         contentType: 'application/json',
@@ -117,7 +126,7 @@ function checkName()
 {
     $.ajax({
         type: 'POST',
-        url: 'localhost',
+        url: ip,
         port: 5000,
         dataType: "json",
         contentType: 'application/json',
@@ -140,7 +149,7 @@ function retrieveStats()
 {
     $.ajax({
         type: 'POST',
-        url: 'localhost',
+        url: ip,
         port: 5000,
         dataType: "json",
         contentType: 'application/json',
@@ -196,21 +205,22 @@ function fetchWidget()
                 data.push(champions[i].name);
             }
             addSetting({type:'dropdown', data}, "Champion", "champion", false);
-            var a = document.getElementById("continue").href = "./mastery.html?username="+selectedUsername+"&champion="+champions[0].name;
+            document.getElementById("setting_champion").setAttribute('onchange','changeChampion();');
+            changeURLBox("/mastery.html?username="+selectedUsername+"&champion="+champions[0].name);
             displayChampionMasteryWidget();
             break;
         case 1:
-            var a = document.getElementById("continue").href = "./rank.html?username="+selectedUsername+"&queue="+queues[selectedQueue];
-            addSetting({type:'checkbox'}, "Show Username", "username", true);
+            changeURLBox("/rank.html?username="+selectedUsername+"&queue="+queues[selectedQueue]);
+            addSetting({type:'checkbox'}, "Show Rank Emblem", "rank", true);
+            addSetting({type:'checkbox'}, "Show Username", "name", true);
             addSetting({type:'checkbox'}, "Show Tier", "tier", true);
-            addSetting({type:'checkbox'}, "Show LP", "lp", true);
-            addSetting({type:'checkbox'}, "Show Win/Loss", "winloss", true);
+            addSetting({type:'checkbox'}, "Show LP/Promos", "lp", true);
+            addSetting({type:'checkbox'}, "Show Win/Loss", "winrate", true);
             displayRankWidget();
             break;
         case 2:
-            var a = document.getElementById("continue").href = "./matches.html?username="+selectedUsername+"&queue="+queues[selectedQueue];
             var data = [1,2,3,4,5,6,7,8];
-            addSetting({type:'checkbox'}, "Ranked Only", "rankedonly", false);
+            addSetting({type:'checkbox'}, "Ranked Only", "rankedonly", true);
             addSetting({type:'dropdown', data}, "# of Matches", "nummatches", false);
             addSetting({type:'testBtn'}, "Test", "test", false);
             displayMatchHistoryWidget();
@@ -261,19 +271,50 @@ function editWidgetSettings(clickedButton)
 
 function displayChampionMasteryWidget()
 {
-    document.getElementById("profile_rank").innerHTML = '<div><img src="./img/mastery_full.png"><div>';
-    
-    $(".setting_champion").click(function(){
-        var champion = document.getElementById("setting_champion").value;
-        document.getElementById("continue").href = "./mastery.html?username=" + selectedUsername + "&champion=" + champion;
-    });
+    var selectedChampion = document.getElementById("setting_champion").value;
+    var selectedChampionId;
+
+    for (var i = 0; i < champions.length; i++)
+    {
+        if (champions[i].name == selectedChampion)
+        {
+            selectedChampionId = champions[i].key;
+            break;
+        }
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: ip,
+        port: 5000,
+        dataType: "json",
+        contentType: 'application/json',
+        headers: { championid : selectedChampionId, summonerid : esid, query : 'mastery' }
+    })
+    .done(function (data) {
+        if (data.length == 0)
+        {
+            document.getElementById("profile").innerHTML = "Error: Summoner has no champion information";
+        }
+        else
+        {
+            document.getElementById("profile_rank").style.paddingBottom = '50px';
+            document.getElementById("profile_rank").innerHTML = "<div style='position: relative;'><img src='./img/tiles/"+ selectedChampion +"_0.jpg' class='pic'><div style='position: absolute; top: -10; left: -14;'><img src='./img/mastery_full.png'></div></div><div style='position: relative; top: 50; background-color: rgba(27, 46, 82, 0.5); border-radius: 4px; padding: 5px; color: #ffffff; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);'>" + numberWithCommas(data['championPoints']) +"</div>";
+        }
+    })
+    .fail(function (xhr, status, error) {
+        document.getElementById("profile_rank").style.paddingBottom = '50px';
+        document.getElementById("profile_rank").innerHTML = "<div style='position: relative;'><img src='./img/tiles/"+ selectedChampion +"_0.jpg' class='pic'><div style='position: absolute; top: -10; left: -14;'><img src='./img/mastery_full.png'></div></div><div style='position: relative; top: 50; background-color: rgba(27, 46, 82, 0.5); border-radius: 4px; padding: 5px; color: #ffffff; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);'>0</div>";
+    })
 }
 
 function displayMatchHistoryWidget()
 {
+    $("#profile_rank").show();
+    $("#setting_nummatches").val(4);
     $.ajax({
         type: 'POST',
-        url: 'localhost',
+        url: ip,
         port: 5000,
         dataType: "json",
         contentType: 'application/json',
@@ -303,6 +344,47 @@ function displayMatchHistoryWidget()
             matchList.push(match);
             loadStats(match);
         }
+
+        var nummatches = 4;
+        var rankedonly = true;
+
+        var updatedURL = "/matches.html?username="+selectedUsername+"&nummatches="+nummatches+"&rankedonly=" + rankedonly;
+        changeURLBox(updatedURL);
+
+        $(".checkBox").click(function(){
+            var settingId = $(this).attr('id');
+            settingId = settingId.slice(8);
+            var isChecked = document.getElementById("setting_"+settingId).checked;
+            if (isChecked)
+                $("#profile_"+settingId).show();
+            else
+                $("#profile_"+settingId).hide();
+    
+            if (!document.getElementById("setting_rankedonly").checked)
+            {
+                updatedURL = "/matches.html?username="+selectedUsername+"&nummatches="+nummatches+"&rankedonly=false";
+                changeURLBox(updatedURL);
+                rankedonly = false;
+            }
+            else
+            {
+                updatedURL = "/matches.html?username="+selectedUsername+"&nummatches="+nummatches+"&rankedonly=true";
+                changeURLBox(updatedURL);
+                rankedonly = true;
+            }
+            
+            document.getElementById("continue").href = updatedURL;
+            changeURLBox(updatedURL);
+        });
+        document.getElementById("setting_nummatches").onchange = function(){
+            nummatches = document.getElementById("setting_nummatches").value;
+            updatedURL = "/matches.html?username="+selectedUsername+"&nummatches="+nummatches+"&rankedonly="+rankedonly;
+            changeURLBox(updatedURL);
+            document.getElementById("continue").href = updatedURL;
+        }
+
+        document.getElementById("continue").href = updatedURL;
+        changeURLBox(updatedURL);
 
     })
     .fail(function (xhr, status, error) {
@@ -369,11 +451,14 @@ function reloadMatchHistory()
 function displayRankWidget()
 {
     var queueObj = summoner.getQueueObj();
+    $("#profile_rank").show();
     $("#profile_name").show();
+    $("#profile_tier").show();
+    $("#profile_lp").show();
+    $("#profile_winrate").show();
     document.getElementById("profile_name").innerHTML = summoner.summonerName;
     document.getElementById("profile_tier").innerHTML = queueObj.tier + " " + queueObj.rank;
     document.getElementById("profile_lp").innerHTML = "";
-    document.getElementById("profile_series").innerHTML = "";
     
     if (queueObj.miniSeries)
     {
@@ -387,7 +472,7 @@ function displayRankWidget()
             else
                 ms += "<img src='./img/promos1.png'>";
         }
-        document.getElementById("profile_series").innerHTML = ms;
+        document.getElementById("profile_lp").innerHTML = ms;
     }
     else
     {
@@ -398,6 +483,31 @@ function displayRankWidget()
     document.getElementById("profile_rank").innerHTML = "";
     
     document.getElementById("profile_rank").innerHTML = "<img src='./img/" + queueObj.tier + ".png'>";
+
+    $(".checkBox").click(function(){
+        var settingId = $(this).attr('id');
+        settingId = settingId.slice(8);
+        var isChecked = document.getElementById("setting_"+settingId).checked;
+        if (isChecked)
+            $("#profile_"+settingId).show();
+        else
+            $("#profile_"+settingId).hide();
+
+        var updatedURL = "/rank.html?username=" + selectedUsername + "&queue=" + queues[selectedQueue];
+        if (!document.getElementById("setting_rank").checked)
+            updatedURL += "&rank=false";
+        if (!document.getElementById("setting_name").checked)
+            updatedURL += "&name=false";
+        if (!document.getElementById("setting_tier").checked)
+            updatedURL += "&tier=false";
+        if (!document.getElementById("setting_lp").checked)
+            updatedURL += "&lp=false";
+        if (!document.getElementById("setting_winrate").checked)
+            updatedURL += "&winrate=false";
+        
+        document.getElementById("continue").href = updatedURL;
+        changeURLBox(updatedURL);
+    });
 }
 
 function turnOff()
@@ -414,17 +524,23 @@ function turnOff()
 
 function clearPreview()
 {
+    document.getElementById("profile_rank").style.paddingBottom = '0px';
     document.getElementById("settings").innerHTML = '';
     $("#profile_name").hide();
     document.getElementById("profile_rank").innerHTML = '';
     document.getElementById("profile_name").innerHTML = '';
     document.getElementById("profile_tier").innerHTML = '';
     document.getElementById("profile_lp").innerHTML = '';
-    document.getElementById("profile_series").innerHTML = '';
     document.getElementById("profile_winrate").innerHTML = '';
     rot = 0;
     ys = [];
     ysr = [];
+}
+
+function numberWithCommas(x) {
+    var parts = x.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join(".");
 }
 
 function addSetting(inputType, label, settingId, isChecked)
@@ -437,7 +553,7 @@ function addSetting(inputType, label, settingId, isChecked)
                 checked = "checked";
             $("#settings").append(
                 '<div>' +
-                '<input type="checkbox" style="margin:2px" name="setting_' + settingId + '" id="setting_' + settingId + '" ' + checked + '>' +
+                '<input type="checkbox" style="margin:2px" class="checkBox" name="setting_' + settingId + '" id="setting_' + settingId + '" ' + checked + '>' +
                 '<label style="margin:2px" for="setting_'+settingId+'">' + label + '</label>' +
                 '</div>'
             );
@@ -445,8 +561,8 @@ function addSetting(inputType, label, settingId, isChecked)
         case 'dropdown':
             $("#settings").append(
                 '<div>' +
+                '<label style="margin:2px 5px 2px 2px" for="setting_'+ settingId+'">' + label + '</label>' +
                 '<select style="margin:2px" class="dropdownBox" name="setting_' + settingId + '" id="setting_' + settingId + '"></select>' +
-                '<label style="margin:2px" for="setting_'+ settingId+'">' + label + '</label>' +
                 '</div>'
             );
             var dropdown = document.getElementById("setting_"+settingId);
@@ -456,6 +572,7 @@ function addSetting(inputType, label, settingId, isChecked)
                 option.text = inputType.data[i];
                 option.className = "setting_" + settingId;
                 option.id = "setting_" + settingId + inputType.data[i];
+                option.value = inputType.data[i];
                 dropdown.add(option);
             }
             break;
@@ -472,11 +589,20 @@ function addSetting(inputType, label, settingId, isChecked)
     }
 }
 
+function changeChampion()
+{
+    var champion = document.getElementById("setting_champion").value;
+    var url = "/mastery.html?username=" + selectedUsername + "&champion=" + champion;
+    document.getElementById("continue").href = url;
+    changeURLBox(url);
+    displayChampionMasteryWidget();
+}
+
 function loadStats(match)
 {
     $.ajax({
         type: 'POST',
-        url: 'localhost',
+        url: ip,
         port: 5000,
         dataType: "json",
         contentType: 'application/json',
@@ -510,6 +636,12 @@ function loadStats(match)
         document.getElementById("error_msg").innerHTML = "Error: Could not retrieve match statistics";
         turnOff();
     });
+}
+
+function changeURLBox(url)
+{
+    document.getElementById("continue").href = url;
+    document.getElementById("url_bar").value = "https://www.lolstreamer.com" + url;
 }
 
 class Summoner {
@@ -577,7 +709,6 @@ class QueueType {
                 else
                     s += "-";
             }
-            //console.log("Mini Series: " + s);
         }
     }
 }
