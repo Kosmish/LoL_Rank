@@ -5,6 +5,12 @@ var accid = "";
 
 var champions = [];
 
+const serverList = [
+    "BR", "EUNE", "EUW", "JP", "KR", "LAN", "LAS", "NA", "OCE", "TR", "RU"
+];
+
+var selectedServer;
+
 //Used for Match History Widget Rotation
 var matchList = [];
 var matchesToDisplay = 6;
@@ -51,6 +57,7 @@ function getParams()
         selectedUsername = data['username'];
         rankedOnly = data['rankedonly'];
         matchesToDisplay = data['nummatches'];
+        selectedServer = data['server'];
 
         if (matchesToDisplay >= minMatches && matchesToDisplay <= maxMatches)
         {
@@ -78,7 +85,7 @@ function checkName()
         url: ip,
         dataType: "json",
         contentType: 'application/json',
-        headers: { username : selectedUsername, query : true }
+        headers: { username : selectedUsername, query : true, server : selectedServer }
     })
     .done(function (data) {
         if (data['id'] != "")
@@ -103,7 +110,7 @@ function displayMatchHistoryWidget(accid)
         url: ip,
         dataType: "json",
         contentType: 'application/json',
-        headers: { accid : accid, query : 'matchhistory', endIndex : matchesToDisplay, rankedonly : rankedOnly }
+        headers: { accid : accid, query : 'matchhistory', endIndex : matchesToDisplay, rankedonly : rankedOnly, server : selectedServer }
     })
     .done(function (data) {
         document.getElementById("profile_rank").innerHTML = '<div style="position: relative; top:0px; left:0px"><img src="./img/match_history_border.gif"><div>';
@@ -144,7 +151,7 @@ function loadStats(match)
         url: ip,
         dataType: "json",
         contentType: 'application/json',
-        headers: { gameid : match.gameId, query : 'matchstats' }
+        headers: { gameid : match.gameId, query : 'matchstats', server : selectedServer }
     })
     .done(function (data) {
         for (var i = 0; i < 10; i++)
@@ -181,7 +188,7 @@ function loadNewGame(newGameData)
         url: ip,
         dataType: "json",
         contentType: 'application/json',
-        headers: { gameid : newGameData['matches'][0]['gameId'], query : 'matchstats' }
+        headers: { gameid : newGameData['matches'][0]['gameId'], query : 'matchstats', server : selectedServer }
     })
     .done(function (data) {
         var update;
@@ -228,7 +235,7 @@ function checkUpdate()
         url: ip,
         dataType: "json",
         contentType: 'application/json',
-        headers: { accid : accid, query : 'matchhistory', endIndex : 1, rankedonly : rankedOnly }
+        headers: { accid : accid, query : 'matchhistory', endIndex : 1, rankedonly : rankedOnly, server : selectedServer }
     })
     .done(function (data) {
         for (var i = 0; i < data['matches'].length; i++)

@@ -4,12 +4,8 @@ const fs = require('fs');
 const url = require('url');
 const request = require('request');
 
-var summoner_name = "";
-var encrypted_summoner_id = "";
-var encrypted_account_id = "";
-var apiKey = '';
-
 let championsAPI = 'http://ddragon.leagueoflegends.com/cdn/10.20.1/data/en_US/champion.json';
+const serverList = ["br1", "eun1", "euw1", "jp1", "kr", "la1", "la2", "na1", "oc1", "ru", "tr1"];
 
 //-----------------------------//
 
@@ -83,8 +79,9 @@ const requestListener = function (req, res) {
                 });
             }
             else if (req.headers['username']) {
-                summoner_name = req.headers['username'];
-                let endpoint = 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summoner_name + '?api_key=' + apiKey;
+                var serverId = req.headers['server'];
+                var summoner_name = req.headers['username'];
+                let endpoint = 'https://'+ serverList[serverId] +'.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + summoner_name + '?api_key=' + apiKey;
             
                 request(endpoint, { json: true }, (err, res2, body) => {
                     if (err) {
@@ -92,8 +89,8 @@ const requestListener = function (req, res) {
                     }
                     if (res2.statusCode == 200)
                     {
-                        console.log("["+ d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +"][Server] Username Check: " + body['name']);
-                        encrypted_summoner_id = body['id'];
+                        console.log("["+ d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +"][Server] Username Check: " + body['name'] + " (" + serverList[serverId] + ")");
+                        
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify(body));
                     }
@@ -106,8 +103,9 @@ const requestListener = function (req, res) {
                 });
             }
             else if (req.headers['esid']) {
-                encrypted_summoner_id = req.headers['esid'];
-                let endpoint = 'https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + encrypted_summoner_id + '?api_key=' + apiKey;
+                var serverId = req.headers['server'];
+                var encrypted_summoner_id = req.headers['esid'];
+                let endpoint = 'https://'+ serverList[serverId] +'.api.riotgames.com/lol/league/v4/entries/by-summoner/' + encrypted_summoner_id + '?api_key=' + apiKey;
             
                 request(endpoint, { json: true }, (err, res2, body) => {
                     if (err) {
@@ -116,7 +114,7 @@ const requestListener = function (req, res) {
                     if (res2.statusCode == 200)
                     {
                         if (body.length > 0)
-                            console.log("["+ d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +"][Server] User Stats Request: " + body[0]['summonerName']);
+                            console.log("["+ d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +"][Server] User Stats Request: " + body[0]['summonerName'] + " (" + serverList[serverId] + ")");
                         else
                             console.log("["+ d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +"][Server] User Stats Request: User has no ranked stats");
                         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -129,17 +127,18 @@ const requestListener = function (req, res) {
                 });
             }
             else if (req.headers['accid']) {
-                encrypted_account_id = req.headers['accid'];
-                let endpoint = 'https://na1.api.riotgames.com/lol/match/v4/matchlists/by-account/' + encrypted_account_id + '?endIndex=' + req.headers['endindex'] + '&api_key=' + apiKey;
+                var serverId = req.headers['server'];
+                var encrypted_account_id = req.headers['accid'];
+                let endpoint = 'https://'+ serverList[serverId] +'.api.riotgames.com/lol/match/v4/matchlists/by-account/' + encrypted_account_id + '?endIndex=' + req.headers['endindex'] + '&api_key=' + apiKey;
                 if (req.headers['rankedonly'] == 'true')
-                    endpoint = 'https://na1.api.riotgames.com/lol/match/v4/matchlists/by-account/' + encrypted_account_id + '?queue=420' + '&endIndex=' + req.headers['endindex'] + '&api_key=' + apiKey;
+                    endpoint = 'https://'+ serverList[serverId] +'.api.riotgames.com/lol/match/v4/matchlists/by-account/' + encrypted_account_id + '?queue=420' + '&endIndex=' + req.headers['endindex'] + '&api_key=' + apiKey;
                 request(endpoint, { json: true }, (err, res2, body) => {
                     if (err) {
                         return console.log(err);
                     }
                     if (res2.statusCode == 200)
                     {
-                        console.log("["+ d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +"][Server] User Match History Request: " + req.headers['accid']);
+                        console.log("["+ d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +"][Server] User Match History Request: " + req.headers['accid'] + " (" + serverList[serverId] + ")");
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify(body));
                     }
@@ -151,15 +150,16 @@ const requestListener = function (req, res) {
             }
             else if (req.headers['gameid'])
             {
+                var serverId = req.headers['server'];
                 var gameId = req.headers['gameid'];
-                let endpoint = 'https://na1.api.riotgames.com/lol/match/v4/matches/' + gameId + '?api_key=' + apiKey;
+                let endpoint = 'https://'+ serverList[serverId] +'.api.riotgames.com/lol/match/v4/matches/' + gameId + '?api_key=' + apiKey;
                 request(endpoint, { json: true }, (err, res2, body) => {
                     if (err) {
                         return console.log(err);
                     }
                     if (res2.statusCode == 200)
                     {
-                        console.log("["+ d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +"][Server] User Match Request: " + req.headers['gameid']);
+                        console.log("["+ d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +"][Server] User Match Request: " + req.headers['gameid'] + " (" + serverList[serverId] + ")");
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify(body));
                     }
@@ -171,16 +171,17 @@ const requestListener = function (req, res) {
             }
             else if (req.headers['query'] == 'mastery')
             {
+                var serverId = req.headers['server'];
                 var summoner = req.headers['summonerid'];
                 var champion = req.headers['championid'];
-                let endpoint = 'https://na1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/' + summoner + '/by-champion/' + champion + '?api_key=' + apiKey;
+                let endpoint = 'https://'+ serverList[serverId] +'.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/' + summoner + '/by-champion/' + champion + '?api_key=' + apiKey;
                 request(endpoint, { json: true }, (err, res2, body) => {
                     if (err) {
                         return console.log(err);
                     }
                     if (res2.statusCode == 200)
                     {
-                        console.log("["+ d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +"][Server] Champion Mastery Request: " + summoner + " - " + champion);
+                        console.log("["+ d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +"][Server] Champion Mastery Request: " + summoner + " - " + champion + " (" + serverList[serverId] + ")");
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify(body));
                     }
@@ -195,7 +196,7 @@ const requestListener = function (req, res) {
             else if (queryParams.username && req.headers['query'] == 'true')
             {
                 res.writeHead(200, { 'Content-Type': 'application/json'});
-                console.log("["+ d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +"][Server] Rank Widget: " + queryParams.username + " - " + queryParams.queue);
+                console.log("["+ d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +"][Server] Rank Widget: " + queryParams.username + " (" + serverList[serverId] + ")");
                 res.end(JSON.stringify(queryParams));
             }
             else

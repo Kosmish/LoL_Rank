@@ -10,6 +10,12 @@ const queues = [
     "RANKED_FLEX_SR"
 ];
 
+var selectedServer;
+
+const serverList = [
+    "BR", "EUNE", "EUW", "JP", "KR", "LAN", "LAS", "NA", "OCE", "TR", "RU"
+];
+
 function getParams()
 {
     $.ajax({
@@ -19,6 +25,7 @@ function getParams()
     .done(function (data) {
         selectedUsername = data['username'];
         selectedQueue = data['queue'];
+        selectedServer = data['server'];
         if (data['rank']=='false')
             $("#profile_rank").hide();
         if (data['name']=='false')
@@ -29,6 +36,11 @@ function getParams()
             $("#profile_lp").hide();
         if (data['winrate']=='false')
             $("#profile_winrate").hide();
+        if (data['layout']=='true')
+        {
+            $("#rank_widget").css("flex-direction", "row");
+            $("#rank_widget").css("font-size", "14pt");
+        }
         checkName();
     })
     .fail(function (xhr, status, error) {
@@ -44,7 +56,7 @@ function checkName()
         port: 5000,
         dataType: "json",
         contentType: 'application/json',
-        headers: { username : selectedUsername, query : true }
+        headers: { username : selectedUsername, query : true, server : selectedServer }
     })
     .done(function (data) {
         if (data['id'] != "")
@@ -70,7 +82,7 @@ function retrieveStats()
         port: 5000,
         dataType: "json",
         contentType: 'application/json',
-        headers: { esid : esid, query : true }
+        headers: { esid : esid, query : true, server : selectedServer }
     })
     .done(function (data) {
         if (data.length == 0)

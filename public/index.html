@@ -16,7 +16,8 @@
             <div class="mid">
 
                 <div class="bar">
-                    Summoner Name: <input type="text" id="username">
+                    Summoner Name: <input type="text" id="username" style="height: 30px;">
+                    <select style="margin:2px" class="dropdownBox" name="serverDropdown" id="serverDropdown"></select>
                     <button id="search_btn">Search</button>
                 </div>
                 <div id="error_msg"></div>
@@ -28,7 +29,7 @@
                     <div class="queueBtn" id="queue1" style="display:none">Flex Queue</div>
                 </div>
                 <div class="profile_container" style="display:none" id="profile_display">
-                    <div class="profile">
+                    <div class="profile" id="profile_box">
                         <div id="profile_rank" class="profile_info"></div>
                         <div class="profile_info" id="profile_info">
                             <div class="profile_detail" id="profile_name"></div>

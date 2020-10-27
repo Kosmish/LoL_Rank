@@ -5,6 +5,12 @@ var selectedChampion = "";
 var selectedChampionId = "";
 var esid = "";
 
+const serverList = [
+    "BR", "EUNE", "EUW", "JP", "KR", "LAN", "LAS", "NA", "OCE", "TR", "RU"
+];
+
+var selectedServer;
+
 var currentPoints;
 
 function getParams()
@@ -16,6 +22,7 @@ function getParams()
     .done(function (data) {
         selectedUsername = data['username'];
         selectedChampion = data['champion'];
+        selectedServer = data['server'];
         checkName();
     })
     .fail(function (xhr, status, error) {
@@ -31,7 +38,7 @@ function checkName()
         port: 5000,
         dataType: "json",
         contentType: 'application/json',
-        headers: { username : selectedUsername, query : true }
+        headers: { username : selectedUsername, query : true, server : selectedServer }
     })
     .done(function (data) {
         if (data['id'] != "")
@@ -57,7 +64,7 @@ function getChampId()
         port: '5000',
         dataType: "json",
         contentType: 'application/json',
-        headers: { champion : selectedChampion, query : 'getchampionid'}
+        headers: { champion : selectedChampion, query : 'getchampionid', server : selectedServer}
     })
     .done(function (data) {
         selectedChampionId = data['data'][selectedChampion]['key'];
@@ -76,7 +83,7 @@ function retrieveStats()
         port: 5000,
         dataType: "json",
         contentType: 'application/json',
-        headers: { championid : selectedChampionId, summonerid : esid, query : 'mastery' }
+        headers: { championid : selectedChampionId, summonerid : esid, query : 'mastery', server : selectedServer }
     })
     .done(function (data) {
         if (data.length == 0)
@@ -93,7 +100,7 @@ function retrieveStats()
             {
                 currentPoints = data['championPoints'];
             }
-            document.getElementById("profile").innerHTML = "<div style='position: relative;'><img src='./img/tiles/"+selectedChampion+"_0.jpg' class='pic'><div style='position: absolute; top: -10; left: -14;'><img src='./img/mastery_full.png'></div></div><div id='points' class='whiteText' style='position: relative; top: 50;background-color: rgba(27, 46, 82, 0.5); border-radius: 4px; padding: 5px; color: #ffffff; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);'>" + numberWithCommas(data['championPoints']) +"</div>";
+            document.getElementById("profile").innerHTML = "<div style='position: relative;'><img src='./img/tiles/"+selectedChampion+"_0.jpg' class='pic'><div style='position: absolute; top: -10; left: -14;'><img src='./img/mastery_full.png'></div></div><div id='points' class='whiteText' style='position: relative; top: 50; background: linear-gradient(0deg, rgba(2,0,26,0.5) 0%, rgba(27,46,82,0.5) 100%); border-radius: 4px; padding: 5px; color: #ffffff; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); border: 1px #051326 solid;'>" + numberWithCommas(data['championPoints']) +"</div>";
         }
         setTimeout(retrieveStats, 300000);
     })

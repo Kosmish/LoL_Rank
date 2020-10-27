@@ -14,6 +14,11 @@ html
     color: #ffffff;
 }
 
+@font-face {
+    font-family: 'Minecraft';
+    src: url('1_Minecraft-Regular.otf');
+}
+
 #lpText
 {
     font-size: 10pt;
@@ -102,6 +107,7 @@ input
 
 button
 {
+    height: 30px;
     background-color: #777777;
     border: none;
     padding: 5px;
@@ -230,7 +236,7 @@ button:hover
     background-color: #333333;
     border-radius: 4px;
     padding: 4px;
-    margin: 5px 5px 5px 5px;
+    margin: 0px 5px 5px 5px;
     position: relative;
     bottom: 0px;
 }
