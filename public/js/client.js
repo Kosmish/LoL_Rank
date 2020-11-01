@@ -178,37 +178,29 @@ function retrieveStats()
         headers: { esid : esid, query : true, server : selectedServer }
     })
     .done(function (data) {
-        if (data.length == 0)
+        summoner = new Summoner(selectedUsername);
+        summoner.summonerId = esid;
+        for(var i = 0; i < data.length; i++)
         {
-            turnOff();
-            document.getElementById("error_msg").innerHTML = "Error: Summoner has no ranked information";
-        }
-        else
-        {
-            summoner = new Summoner(selectedUsername);
-            summoner.summonerId = esid;
-            for(var i = 0; i < data.length; i++)
+            var queue = new QueueType();
+            queue.queueType = data[i]['queueType'];
+            queue.tier = data[i]['tier'];
+            queue.rank = data[i]['rank'];
+            queue.leaguePoints = data[i]['leaguePoints'];
+            queue.wins = data[i]['wins'];
+            queue.losses = data[i]['losses'];
+            if (data[i]['miniSeries'])
             {
-                var queue = new QueueType();
-                queue.queueType = data[i]['queueType'];
-                queue.tier = data[i]['tier'];
-                queue.rank = data[i]['rank'];
-                queue.leaguePoints = data[i]['leaguePoints'];
-                queue.wins = data[i]['wins'];
-                queue.losses = data[i]['losses'];
-                if (data[i]['miniSeries'])
-                {
-                    queue.miniSeries = true;
-                    queue.target = data[i]['miniSeries']['target'];
-                    queue.seriesWins = data[i]['miniSeries']['wins'];
-                    queue.seriesLosses = data[i]['miniSeries']['losses'];
-                    queue.progress = data[i]['miniSeries']['progress'];
-                }
-                summoner.addQueue(queue);
+                queue.miniSeries = true;
+                queue.target = data[i]['miniSeries']['target'];
+                queue.seriesWins = data[i]['miniSeries']['wins'];
+                queue.seriesLosses = data[i]['miniSeries']['losses'];
+                queue.progress = data[i]['miniSeries']['progress'];
             }
-            summoner.displayRank();
-            selectQueue();
+            summoner.addQueue(queue);
         }
+        summoner.displayRank();
+        selectQueue();
     })
     .fail(function (xhr, status, error) {
         console.log('Error: ' + error.message);
@@ -719,25 +711,23 @@ class Summoner {
     }
     displayRank()
     {
-        for (var i = 0; i < this.queueTypes.length; i++)
-        {
-            if (this.queueTypes[i].queueType == queues[0])
-            {
-                $("#queue0").show();
-            }
-            else if (this.queueTypes[i].queueType == queues[1])
-            {
-                $("#queue1").show();
-            }
-        }
+        $("#queue0").show();
+        $("#queue1").show();
     }
     getQueueObj()
     {
         for (var i = 0; i < numOfQueueTypes; i++)
         {
-            if (queues[selectedQueue] == this.queueTypes[i].queueType)
+            if (this.queueTypes[i])
             {
-                return this.queueTypes[i];
+                if (queues[selectedQueue] == this.queueTypes[i].queueType)
+                {
+                    return this.queueTypes[i];
+                }
+            }
+            else
+            {
+                return new QueueType();
             }
         }
     }
@@ -747,7 +737,7 @@ class QueueType {
     constructor()
     {
         this.queueType = "";
-        this.tier = "";
+        this.tier = "UNRANKED";
         this.rank = "";
         this.leaguePoints = 0;
         this.wins = 0;
